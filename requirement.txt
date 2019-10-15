@@ -2,3 +2,4 @@ wheel
 dgl
 pylint
 networkx
+matplotlib

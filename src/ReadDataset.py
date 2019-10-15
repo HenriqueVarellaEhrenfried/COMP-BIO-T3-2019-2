@@ -1,5 +1,6 @@
 import glob
 import networkx as nx
+# import matplotlib.pyplot as plt
 
 file_names_neg = glob.glob('../dataset/neg/*.txt')
 file_names_pos = glob.glob('../dataset/pos/*.txt')
@@ -27,16 +28,28 @@ for f in file_names:
 G.add_nodes_from(file_names)
 
 i = 0 
+graph_items=[]
 
-# This for implements edges from word to documents
+# This "for" implements edges and saves items
 for i in range(0,len(file_names)):
+    aux = {}
     lw = generate_list_of_word(file_content[i])
     le = generete_list_of_edge(file_names[i], lw)
     G.add_edges_from(le)
+    aux['list_of_words'] = lw 
+    aux['file_content'] = file_content[i]
+    aux['file_names'] = file_names[i]
+    graph_items.append(aux)
+
 
 
 print(G.number_of_edges())
 print(G.number_of_nodes())
+
+
+
+# print(max(dict(G.degree()).items(), key = lambda x : x[1]))
+# print((G.degree))
 
 ## TODO:
 # Implement edges from word to word
