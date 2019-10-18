@@ -75,22 +75,20 @@ for w in words:
     for doc in words[w]['documents']:
         freq_word_in_doc = words[w]['documents'][doc]
         tf_idf= freq_word_in_doc *  math.log10(number_of_doc/number_of_doc_with_word)    
-        ## TODO:
-        # Add weights (TF IDF) to the graph. The bellow lines didn't work
-        # Learn how to calculate the PMI from the original article  
+        G.edges[w, doc]['weight'] = tf_idf
 
-        # G[words[w]][words[w]['documents']]['weight'] = tf_idf
-        # print(G[words[w]][words[w]['documents']])
 
-print(G.edges(data=True))
+G.remove_node('')
 
 print("Number of EDGES >> ", G.number_of_edges())
 print("Number of NODES >> ", G.number_of_nodes())
 
 
-
 # print(max(dict(G.degree()).items(), key = lambda x : x[1]))
 # print((G.degree))
+# print(G.edges(data=True))
+
 
 ## TODO:
 # Implement weights
+#   Learn how to calculate the PMI from the original article  
