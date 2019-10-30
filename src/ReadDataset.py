@@ -1,10 +1,11 @@
 import glob
 import math 
 import networkx as nx
+import matplotlib.pyplot as plt
 # import matplotlib.pyplot as plt
 
-file_names_neg = glob.glob('../dataset/neg/*.txt')
-file_names_pos = glob.glob('../dataset/pos/*.txt')
+file_names_neg = glob.glob('../dataset/neg/0_3.txt')
+file_names_pos = glob.glob('../dataset/pos/0_9.txt')
 
 file_names = file_names_pos+file_names_neg
 file_content = []
@@ -29,6 +30,7 @@ def generete_list_of_edge(document_node, list_of_words):
     edges.append((document_node, document_node))
     for l in list_of_words:
         edges.append((document_node, l))
+        edges.append((l, l))
     return edges
 
 for f in file_names:
@@ -83,12 +85,22 @@ G.remove_node('')
 print("Number of EDGES >> ", G.number_of_edges())
 print("Number of NODES >> ", G.number_of_nodes())
 
+nx.drawing.nx_agraph.write_dot(G,'./Dot/Test.dot')
 
 # print(max(dict(G.degree()).items(), key = lambda x : x[1]))
 # print((G.degree))
-# print(G.edges(data=True))
+print(G.nodes(data=True))
 
 
 ## TODO:
 # Implement weights
 #   Learn how to calculate the PMI from the original article  
+#       From what I learned (I need to look it deeper) I will need:
+#           1) The number of times each word occurs - Let's call it function a()
+#           2) The number of times word I and J are togheter - Let's call it function b()
+#           4) The number of words - Let's call it function c()
+#       Then I need to calculate for each edge:  log( (b(i,j)/c()) /  (a(i/c()))*(a(j)/c()) ),
+#       where i is a node (word) and j is a node (word)
+
+
+# dot -Tpdf Dot/Test.dot -o Dot/graph.pdf
