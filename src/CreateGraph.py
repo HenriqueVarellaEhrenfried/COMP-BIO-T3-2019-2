@@ -4,7 +4,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 # Create Graph
-G = nx.MultiGraph()
+G = nx.Graph()
 
 # Read vocabulary
 with open("../dataset/imdb.vocab") as f:
@@ -54,14 +54,15 @@ At this point I have:
     * Nodes
     * All self edges (i,i)
 """
-# The above code does not work as expected. It is needed to be examined
+
 for i in range(0, len(review_names)):
+    print(i)
     for j in range (1, len(bag_of_words[i])):
         word = vocab[int(bag_of_words[i][j].split(":")[0])]
         G.add_edge(word,review_names[i])
         # Add edges between words in the same file
         if j > 1:
-            for k in range(j-1, 0):
+            for k in range(j-1, 0, -1):
                 previous_word = vocab[int(bag_of_words[i][k].split(":")[0])]
                 G.add_edge(word, previous_word)                
 
@@ -80,6 +81,16 @@ print("Number of VOCAB >> ", len(vocab))
 # Number of DOCS >>  25000
 # Number of VOCAB >>  89527
 
+# After code from lines 63 to 66
+# Number of NODES >>  114527
+# Number of EDGES >>  65368638
+# Number of DOCS >>  25000
+# Number of VOCAB >>  89527
+
+
+# I think we have to try a new alternative, to it to run it is needed at least 16GB of RAM.
+
+
 
 # If you desire the Graviz version of the graph use the above line
-nx.drawing.nx_agraph.write_dot(G,'./Dot/Test.dot')
+# nx.drawing.nx_agraph.write_dot(G,'./Dot/Test.dot')
