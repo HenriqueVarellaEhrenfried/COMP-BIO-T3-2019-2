@@ -4,22 +4,6 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 LIMIT_LINES = 1500
-# TODO: Finish this function
-def get_number_of_times_togheter(bow, vocabulary):
-    # Get Number of times that each pair of words are neighbors
-    # Returns an array with all words and all ocurrencies {word:{word2: times togheter}}
-    for i in range(0,len(vocabulary)):
-        for document in bow:
-            for word in document:
-                w = word.split(":")
-                if len(w) == 2:
-
-                else:
-                    continue
-
-
-        word = vocab[int(bag_of_words[i][j].split(":")[0])]
-
 
 # Create Graph
 G = nx.Graph()
@@ -79,6 +63,25 @@ for v in vocab:
     else:
         final_vocab.append(v)
 
+cooccurencies = {}
+for i in range(0,len(vocab)):
+    cooccurencies[str(i)] = {}
+
+for bw in bag_of_words:
+    for i in range(1,len(bw)):
+        current_word = bw[i].split(":")[0]
+        for j in range(1, len(bw)):
+            if i == j:
+                continue
+            else:
+                neighbor = bw[j].split(":")[0]
+                if neighbor in cooccurencies[current_word]:
+                    cooccurencies[current_word][neighbor] = cooccurencies[current_word][neighbor] + 1
+                else:
+                    cooccurencies[current_word][neighbor] = 1
+
+        
+print(cooccurencies)
 
 """
 At this point I have:
@@ -140,7 +143,7 @@ print("Number of VOCAB >> ", len(vocab))
 # =======PMI======= #
 # #W = Number of words (len(final_vocab))
 # #W(i) = Number of times that i appears (vocab_dict[i]["Occurencies"])
-# #W(i,j) = Number of times that i and j are neighbors ()
+# #W(i,j) = Number of times that i and j are neighbors (cooccurencies[i][j])
 #___________________#
 # PMI(i,j) = log(p(i,j)/p(i)/p(j))
 # p(i,j) = #W(i,j)/#W
