@@ -5,6 +5,15 @@ import matplotlib.pyplot as plt
 
 LIMIT_LINES = 1500
 
+def tf_idf(bow_doc, num_docs, total_docs):
+    return(bow_doc * math.log((total_docs/num_docs)))
+
+def pmi(occurencies_i, occurencies_j, cooccurencies, number_of_words):
+    pij = cooccurencies / number_of_words
+    pi = occurencies_i / number_of_words
+    pj = occurencies_j / number_of_words
+    return(math.log( (pij)/(pi*pj) ))
+
 # Create Graph
 G = nx.Graph()
 
@@ -14,12 +23,11 @@ with open("../dataset/imdb.vocab") as f:
 
 vocab_dict = { i : {"Total":0, "Occurencies": 0, "Number of Documents":0} for i in vocab}
 
+
 # Read BoW
 raw_bag_of_words = []
-# with open("../dataset/labeledBow.feat") as f:
-#     raw_bag_of_words = [line.rstrip() for line in f]
 
-# Read the first 1500
+# Read the first 1500 lines of BoW
 i = 1
 for line in list(open("../dataset/labeledBow.feat")):
     raw_bag_of_words.append(line.rstrip())
@@ -63,6 +71,7 @@ for v in vocab:
     else:
         final_vocab.append(v)
 
+# Save all coocurencies between words
 cooccurencies = {}
 for i in range(0,len(vocab)):
     cooccurencies[str(i)] = {}
@@ -80,15 +89,13 @@ for bw in bag_of_words:
                 else:
                     cooccurencies[current_word][neighbor] = 1
 
-        
-print(cooccurencies)
-
 """
 At this point I have:
     * All words; (final_vocab)
     * All file names; (review_names)
     * All occurencies from each word (vocab_dict)
     * All occurencies from each word in each file (bag_of_words)
+    * All cooccurencies (coocurencies)
 """
 
 # Create a node for each vocabulary
@@ -109,16 +116,20 @@ At this point I have:
 """
 
 for i in range(0, len(review_names)):
-    # print(i)
     for j in range (1, len(bag_of_words[i])):
-        word = vocab[int(bag_of_words[i][j].split(":")[0])]
-        G.add_edge(word,review_names[i])
+        aux = bag_of_words[i][j].split(":")
+        word = vocab[int(aux[0])]
+        edge_weight = tf_idf(int(aux[1]),vocab_dict[word]["Number of Documents"],LIMIT_LINES+LIMIT_LINES)
+        G.add_edge(word,review_names[i], weight = edge_weight)
         # Add edges between words in the same file
         if j > 1:
             for k in range(j-1, 0, -1):
-                previous_word = vocab[int(bag_of_words[i][k].split(":")[0])]
-
-                G.add_edge(word, previous_word)                
+                aux2 = bag_of_words[i][k].split(":")
+                previous_word = vocab[int(aux2[0])]
+                occ_i = vocab_dict[word]["Total"]
+                occ_j = vocab_dict[previous_word]["Total"]
+                edge_weight = pmi(occ_i,occ_j,cooccurencies[str(aux[0])][str(aux2[0])],len(final_vocab))
+                G.add_edge(word, previous_word, weight = edge_weight)                
 
 
 # If you want to verify something use the above lines
@@ -129,8 +140,12 @@ print("Number of FINAL VOCAB >> ", len(final_vocab))
 print("Number of VOCAB >> ", len(vocab))
 
 
-# If you desire the Graviz version of the graph use the above line
-# nx.drawing.nx_agraph.write_dot(G,'./Dot/Test.dot')
+
+
+# If you desire the Graviz version of the graph use the above lines
+print(">> Generating DOT file")
+nx.drawing.nx_agraph.write_dot(G,'./Dot/Test.dot')
+print(">> DOT file generated")
 
 
 # Weights in graph:
@@ -142,10 +157,10 @@ print("Number of VOCAB >> ", len(vocab))
 
 # =======PMI======= #
 # #W = Number of words (len(final_vocab))
-# #W(i) = Number of times that i appears (vocab_dict[i]["Occurencies"])
+# #W(i) = Number of times that i appears (vocab_dict[i]["Total"])
 # #W(i,j) = Number of times that i and j are neighbors (cooccurencies[i][j])
 #___________________#
-# PMI(i,j) = log(p(i,j)/p(i)/p(j))
+# PMI(i,j) = log(p(i,j)/p(i)*p(j))
 # p(i,j) = #W(i,j)/#W
 # p(i) = #W(i)/#W
 
